@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+
+    <title>Chatbot Example</title>
+    <style>
+        /* Estilos básicos para o chatbot */
+        .chat-container {
+            height: 400px;
+            overflow-y: scroll;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+        .user-message {
+            background-color: #eee;
+            padding: 5px;
+            margin-bottom: 10px;
+        }
+        .bot-message {
+            background-color: #f5f5f5;
+            padding: 5px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    
+    <h1>Chatbot Example</h1>
+
+    <div class="chat-container" id="chat-container">
+        <!-- Container para exibir as mensagens -->
+    </div>
+
+    <input type="text" id="user-input" placeholder="Digite sua mensagem...">
+    <button type="button" id="send-button">Enviar</button>
+
+    <script>
+        
+        
+       // Lógica do chatbot com ChatGPT
+var chatContainer = document.getElementById("chat-container");
+var userInput = document.getElementById("user-input");
+var sendButton = document.getElementById("send-button");
+
+var openaiApiKey = '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'; // Substitua pela sua chave de API do ChatGPT
+
+function addMessage(message, isUser) {
+    var messageElement = document.createElement("div");
+    messageElement.classList.add(isUser ? "user-message" : "bot-message");
+    messageElement.textContent = message;
+    chatContainer.appendChild(messageElement);
+}
+
+async function processUserInput() {
+    var userMessage = userInput.value;
+    addMessage(userMessage, true);
+
+    // Chamar a API do ChatGPT
+    var botResponse = await fetchChatGPTResponse(userMessage);
+    addMessage(botResponse, false);
+
+    userInput.value = ""; // Limpar o campo de entrada após o envio
+}
+
+async function fetchChatGPTResponse(userMessage) {
+    var response = await fetch('https://api.openai.com/v1/engines/davinci-codex/completions', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + openaiApiKey
+        },
+        body: JSON.stringify({
+            prompt: 'Olá ' + userMessage,
+            max_tokens: 50
+        })
+    });
+
+    var data = await response.json();
+    return data.choices[0].text.trim();
+}
+
+sendButton.addEventListener("click", processUserInput);
+userInput.addEventListener("keypress", function (event) {
+    if (event.keyCode === 13) { // Tecla Enter
+        processUserInput();
+    }
+});
+
+    </script>
+</body>
+</html>
